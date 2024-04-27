@@ -38,7 +38,7 @@ export default function Home() {
 
   return (
     <main className="p-4 ">
-      <h1 className="text-4xl font-bold text-center mb-4">Hello Eden</h1>
+      <h1 className="text-4xl font-bold text-center mb-4">Hello Eden :)))</h1>
       {resultImageUrl && (
         <div className="flex justify-center">
           <Image
