@@ -27,16 +27,21 @@ export default function Home() {
             <source src={story["url"]} type="video/mp4" />
             Your browser does not support the video tag.
           </video>
-          <p className="text-center">
-          {new Date(story["timestamp"] * 1000).toLocaleString('en-US', {
-            year: 'numeric',
-            month: 'long',
-            day: 'numeric',
-            hour: '2-digit',
-            minute: '2-digit',
-            hour12: true
-          })}
-        </p>
+          {/* <p className="text-center"> */}
+            <h2>
+            {new Date(story["timestamp"] * 1000).toLocaleString('en-US', {
+              year: 'numeric',
+              month: 'long',
+              day: 'numeric',
+              hour: '2-digit',
+              minute: '2-digit',
+              hour12: true
+            })}
+            </h2>
+            <h3>
+              This is the story of the Verdelis, a little robot that was built by the Eden Art Lab.
+            </h3>
+        {/* </p> */}
           <hr/>
         </div>
       ))}       
