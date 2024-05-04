@@ -1,32 +1,12 @@
-import { EdenClient } from "@edenlabs/eden-sdk";
 import { NextApiRequest, NextApiResponse } from "next";
 
 const handler = async (req: NextApiRequest, res: NextApiResponse) => {
-  const { taskId } = req.body;
-
-  try {
-    const eden = new EdenClient({
-      apiKey: process.env.EDEN_API_KEY,
-      apiSecret: process.env.EDEN_API_SECRET,
-    });
-
-    const { task } = await eden.tasks.get({ taskId });
-
-    if (!task) {
-      throw new Error("Task not found");
-    }
-
-    const { status, creation } = task;
-
-    if (status === "completed") {
-      res.status(200).json({ uri: creation.uri });
-    }
-
-    if (status === "failed") {
-      res.status(500).json({ error: "Task failed" });
-    }
-
-    res.status(200).json({ uri: null });
+  try {    
+    const response = await fetch("https://edenartlab--eden-little-martians-fastapi-app.modal.run/stories/verdelis");
+    const data = await response.json();
+    const verdelis_story = data.verdelis_story;
+    console.log(verdelis_story);
+    res.status(200).json(verdelis_story);
   } catch (error) {
     console.error(error);
     return res.status(500).json({ error: "Internal server error" });

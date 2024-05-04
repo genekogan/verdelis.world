@@ -1,76 +1,45 @@
 import Image from "next/image";
-import { useState } from "react";
-import axios from "axios";
+import { useState, useEffect } from "react";
 
 export default function Home() {
-  const [prompt, setPrompt] = useState("");
-  const [isCreating, setIsCreating] = useState(false);
-  const [resultImageUrl, setResultImageUrl] = useState(undefined);
+  const [stories, setStories] = useState([]);
 
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    setIsCreating(true);
-    try {
-      const imageTaskResponse = await axios.post("/api/submit", {
-        text_input: prompt,
-      });
-      const { taskId } = imageTaskResponse.data;
+  const fetchStories = async () => {
+    console.log("fetching stories");
+    const res = await fetch("https://edenartlab--eden-little-martians-fastapi-app.modal.run/stories/verdelis");
+    console.log(res);
+    const data = await res.json();
+    console.log(data);
 
-      let imageUrl = null;
-
-      const pollForImage = async () => {
-        const pollResponse = await axios.post("/api/poll", { taskId });
-        if (pollResponse.data.uri) {
-          imageUrl = pollResponse.data.uri;
-          setResultImageUrl(imageUrl);
-          setIsCreating(false);
-        } else {
-          setTimeout(pollForImage, 4000); // Poll every 4 seconds
-        }
-      };
-
-      pollForImage();
-    } catch (error) {
-      console.error(error);
-      setIsCreating(false);
-    }
+    setStories(data);
   };
 
+  useEffect(() => {
+    fetchStories();
+  }, []);
+  
   return (
     <main className="p-4 ">
-      <h1 className="text-4xl font-bold text-center mb-4">Hello Eden :)))</h1>
-      {resultImageUrl && (
-        <div className="flex justify-center">
-          <Image
-            src={resultImageUrl}
-            alt={prompt}
-            width={500}
-            height={500}
-            className="rounded-lg shadow-lg"
-          />
+      <h1 className="text-4xl font-bold text-center mb-4">Verdelis</h1>
+      {stories.map((story, index) => (
+        <div key={index} className="flex flex-col items-center justify-center" style={{ marginTop: "100px" }}>
+          <video controls loop muted autoPlay>
+            <source src={story["url"]} type="video/mp4" />
+            Your browser does not support the video tag.
+          </video>
+          <p className="text-center">
+          {new Date(story["timestamp"] * 1000).toLocaleString('en-US', {
+            year: 'numeric',
+            month: 'long',
+            day: 'numeric',
+            hour: '2-digit',
+            minute: '2-digit',
+            hour12: true
+          })}
+        </p>
+          <hr/>
         </div>
-      )}
-      <div className="mt-4">
-        <label
-          htmlFor="prompt"
-          className="block text-sm font-medium text-white"
-        >
-          Prompt
-        </label>
-        <input
-          type="text"
-          value={prompt}
-          onChange={(e) => setPrompt(e.target.value)}
-          className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-300 focus:ring focus:ring-indigo-200 focus:ring-opacity-50 text-black"
-        />
-      </div>
-      <button
-        onClick={handleSubmit}
-        disabled={isCreating}
-        className="mt-4 px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700 disabled:opacity-50"
-      >
-        {isCreating ? "Creating..." : "Create"}
-      </button>
+      ))}       
     </main>
   );
 }
