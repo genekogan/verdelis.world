@@ -39,7 +39,7 @@ export default function Home() {
             })}
             </h2>
             <h3>
-              This is the story of the Verdelis, a little robot that was built by the Eden Art Lab.
+              {story["story"]}
             </h3>
         {/* </p> */}
           <hr/>
