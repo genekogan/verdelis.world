@@ -23,7 +23,7 @@ export default function Home() {
   
   return (
     <main className="p-4 ">
-      <h1 className="text-4xl font-bold text-center mb-4">Verdelis!</h1>
+      <h1 className="text-4xl font-bold text-center mb-4">Verdelis</h1>
       {isLoading ? (
         <div className="text-center"><h2>Loading...</h2></div>
       ) : (
