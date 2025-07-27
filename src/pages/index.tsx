@@ -8,9 +8,10 @@ export default function Home() {
   const fetchStories = async () => {
     setIsLoading(true);
     console.log("fetching stories");
-    const res = await fetch("https://edenartlab--eden-little-martians-fastapi-app.modal.run/stories/verdelis");
-    console.log(res);
+    const res = await fetch("https://edenartlab--eden-little-martians-create-fastapi-app.modal.run/stories/verdelis");
+    // console.log(res);
     const data = await res.json();
+
     console.log(data);
 
     setStories(data);
@@ -23,7 +24,24 @@ export default function Home() {
   
   return (
     <main className="p-4 ">
-      <h1 className="text-4xl font-bold text-center mb-4">Verdelis</h1>
+      <header className="flex items-center justify-center mb-8 py-6">
+        <div className="flex items-center gap-4">
+          <Image 
+            src="/images/verdelis-face.png" 
+            alt="Verdelis face" 
+            width={240} 
+            height={240}
+            className="object-contain"
+          />
+          <Image 
+            src="/images/verdelis-text.png" 
+            alt="Verdelis" 
+            width={280} 
+            height={84}
+            className="object-contain"
+          />
+        </div>
+      </header>
       {isLoading ? (
         <div className="text-center"><h2>Loading...</h2></div>
       ) : (
