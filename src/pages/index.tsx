@@ -7,15 +7,16 @@ export default function Home() {
 
   const fetchStories = async () => {
     setIsLoading(true);
-    console.log("fetching stories");
-    const res = await fetch("https://edenartlab--eden-little-martians-create-fastapi-app.modal.run/stories/verdelis");
-    // console.log(res);
-    const data = await res.json();
-
-    console.log(data);
-
-    setStories(data);
-    setIsLoading(false); 
+    try {
+      const res = await fetch("https://edenartlab--eden-little-martians-create-fastapi-app.modal.run/stories/verdelis");
+      const data = await res.json();
+      setStories(data);
+    } catch (error) {
+      console.error("Failed to fetch stories:", error);
+      setStories([]);
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   useEffect(() => {
@@ -41,11 +42,7 @@ export default function Home() {
             className="object-contain"
           />
         </div>
-        <div className="flex items-center gap-4">
-          <button className="bg-blue-500 text-white px-4 py-2 rounded-md">
-            Hello Verdelis
-          </button>
-        </div>
+        
       </header>
       {isLoading ? (
         <div className="text-center"><h2>Loading...</h2></div>
