@@ -37,9 +37,14 @@ export default function Home() {
             src="/images/verdelis-text.png" 
             alt="Verdelis" 
             width={280} 
-            height={84}
+            height={584}
             className="object-contain"
           />
+        </div>
+        <div className="flex items-center gap-4">
+          <button className="bg-blue-500 text-white px-4 py-2 rounded-md">
+            Hello Verdelis
+          </button>
         </div>
       </header>
       {isLoading ? (
