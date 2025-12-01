@@ -35,20 +35,31 @@ function formatDate(date: Date): string {
 
 export default function CollectionGallery() {
   const [creations, setCreations] = useState<Creation[]>([]);
+  const [artifacts, setArtifacts] = useState<unknown[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
-    const fetchCreations = async () => {
+    const fetchData = async () => {
       setIsLoading(true);
       setError(null);
 
       try {
-        const res = await fetch("/api/collection");
-        if (!res.ok) throw new Error("Failed to fetch collection");
-        const data = await res.json();
-        const items = data.creations?.docs || data.creations?.creations || [];
+        // Fetch both creations and artifacts in parallel
+        const [collectionRes, artifactsRes] = await Promise.all([
+          fetch("/api/collection"),
+          fetch("/api/artifacts"),
+        ]);
+
+        if (!collectionRes.ok) throw new Error("Failed to fetch collection");
+        const collectionData = await collectionRes.json();
+        const items = collectionData.creations?.docs || collectionData.creations?.creations || [];
         setCreations(items);
+
+        if (artifactsRes.ok) {
+          const artifactsData = await artifactsRes.json();
+          setArtifacts(artifactsData.docs || []);
+        }
       } catch (err) {
         console.error(err);
         setError("Failed to load collection");
@@ -56,7 +67,7 @@ export default function CollectionGallery() {
         setIsLoading(false);
       }
     };
-    fetchCreations();
+    fetchData();
   }, []);
 
   const mainCreation = creations[0];
@@ -223,6 +234,35 @@ export default function CollectionGallery() {
             <div className="flex flex-col items-center justify-center h-[50vh] text-center">
               <p className="text-white/30">No creations found</p>
             </div>
+          )}
+
+          {/* Artifacts Section */}
+          {artifacts.length > 0 && (
+            <>
+              <div className="max-w-7xl mx-auto px-6">
+                <div className="h-px bg-gradient-to-r from-transparent via-white/10 to-transparent" />
+              </div>
+
+              <section className="max-w-7xl mx-auto px-6 py-12">
+                <div className="flex items-center justify-between mb-8">
+                  <h2 className="text-xl font-semibold text-white/80 tracking-wide">Artifacts</h2>
+                  <span className="text-white/30 text-sm">{artifacts.length} artifact{artifacts.length !== 1 ? 's' : ''}</span>
+                </div>
+
+                <div className="space-y-4">
+                  {artifacts.map((artifact, index) => (
+                    <div
+                      key={index}
+                      className="bg-white/[0.02] border border-white/5 rounded-xl p-4 overflow-x-auto"
+                    >
+                      <pre className="text-sm text-emerald-400/80 whitespace-pre-wrap break-words font-mono">
+                        {JSON.stringify(artifact, null, 2)}
+                      </pre>
+                    </div>
+                  ))}
+                </div>
+              </section>
+            </>
           )}
         </>
       )}

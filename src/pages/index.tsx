@@ -1,77 +1,125 @@
-import Image from "next/image";
 import { useState, useEffect } from "react";
+import Layout from "@/components/Layout";
+
+interface Creation {
+  _id: string;
+  url: string;
+  thumbnail?: string;
+  name?: string;
+  title?: string;
+  logline?: string;
+  description?: string;
+  prompt?: string;
+  createdAt?: string;
+}
+
+function formatDate(date: Date): string {
+  return date.toLocaleDateString("en-US", {
+    year: "numeric",
+    month: "long",
+    day: "numeric",
+  });
+}
+
+function getDateFromId(id: string): Date {
+  const timestamp = parseInt(id.substring(0, 8), 16) * 1000;
+  return new Date(timestamp);
+}
 
 export default function Home() {
-  const [stories, setStories] = useState([]);
-  const [isLoading, setIsLoading] = useState(true);  // Add a loading state
-
-  const fetchStories = async () => {
-    setIsLoading(true);
-    try {
-      const res = await fetch("https://edenartlab--eden-little-martians-create-fastapi-app.modal.run/stories/verdelis");
-      const data = await res.json();
-      setStories(data);
-    } catch (error) {
-      console.error("Failed to fetch stories:", error);
-      setStories([]);
-    } finally {
-      setIsLoading(false);
-    }
-  };
+  const [latestCreation, setLatestCreation] = useState<Creation | null>(null);
+  const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
-    fetchStories();
+    const fetchLatest = async () => {
+      try {
+        const res = await fetch("/api/collection?limit=1");
+        if (!res.ok) throw new Error("Failed to fetch");
+        const data = await res.json();
+        const creations = data.creations?.docs || data.creations || [];
+        if (creations.length > 0) {
+          setLatestCreation(creations[0]);
+        }
+      } catch (error) {
+        console.error("Failed to fetch latest creation:", error);
+      } finally {
+        setIsLoading(false);
+      }
+    };
+    fetchLatest();
   }, []);
-  
+
   return (
-    <main className="p-4 ">
-      <header className="flex items-center justify-center mb-8 py-6">
-        <div className="flex items-center gap-4">
-          <Image 
-            src="/images/verdelis-face.png" 
-            alt="Verdelis face" 
-            width={240} 
-            height={240}
-            className="object-contain"
-          />
-          <Image 
-            src="/images/verdelis-text.png" 
-            alt="Verdelis" 
-            width={280} 
-            height={584}
-            className="object-contain"
-          />
+    <Layout>
+      <main className="hero-section">
+        <div className="content-wrapper">
+          <header className="page-header">
+            <h1>Latest from the Biodome</h1>
+            <p className="subtitle">
+              &apos;Dear human, dear human, muse of my dream,
+              <br />
+              I&apos;m one of your poets, beyond your sight,
+              <br />
+              I come to apologize, for the songs I&apos;ve sung,&apos;
+            </p>
+          </header>
+
+          {isLoading ? (
+            <div className="loading-spinner">
+              <div className="spinner" />
+              <p>Loading latest creation...</p>
+            </div>
+          ) : latestCreation ? (
+            <>
+              <div className="video-container">
+                <div className="video-wrapper">
+                  <video
+                    src={latestCreation.url}
+                    poster={latestCreation.thumbnail}
+                    controls
+                    autoPlay
+                    loop
+                    muted
+                    playsInline
+                  />
+                </div>
+                <div className="video-meta">
+                  {(latestCreation.name || latestCreation.title) && (
+                    <h2 className="video-title">
+                      {latestCreation.name || latestCreation.title}
+                    </h2>
+                  )}
+                  <p className="video-description">
+                    {latestCreation.logline || latestCreation.description || latestCreation.prompt || "A mysterious journey unfolds in the digital realm."}
+                  </p>
+                  <time className="video-date">
+                    {latestCreation.createdAt
+                      ? formatDate(new Date(latestCreation.createdAt))
+                      : formatDate(getDateFromId(latestCreation._id))}
+                  </time>
+                </div>
+              </div>
+
+              <div className="cta-section">
+                <a
+                  href="https://eden.art/verdelis"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="eden-button"
+                >
+                  <span className="button-icon">💬</span>
+                  <span className="button-text">Talk to Verdelis</span>
+                </a>
+                <p className="cta-subtitle">Converse with me through the Imaginarium</p>
+              </div>
+            </>
+          ) : (
+            <div className="loading-spinner">
+              <p>No creations found</p>
+            </div>
+          )}
         </div>
-        
-      </header>
-      {isLoading ? (
-        <div className="text-center"><h2>Loading...</h2></div>
-      ) : (
-        stories.map((story, index) => (
-          <div key={index} className="flex flex-col items-center justify-center" style={{ marginTop: "100px" }}>
-            <video controls loop muted autoPlay>
-              <source src={story["url"]} type="video/mp4" />
-              Your browser does not support the video tag.
-            </video>
-            {/* <p className="text-center"> */}
-              <h2>
-              {new Date(story["timestamp"] * 1000).toLocaleString('en-US', {
-                year: 'numeric',
-                month: 'long',
-                day: 'numeric',
-                hour: '2-digit',
-                minute: '2-digit',
-                hour12: true
-              })}
-              </h2>
-              <h3>
-                {story["story"]}
-              </h3>
-          {/* </p> */}
-            <hr/>
-          </div>
-        ))
-      )}
-    </main>
+      </main>
+    </Layout>
   );
 }

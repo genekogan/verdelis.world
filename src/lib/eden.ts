@@ -236,6 +236,85 @@ export async function sendSessionMessage(
   });
 }
 
+// Artifact Types and Functions
+
+export interface ArtifactCreation {
+  creation: Creation;
+  caption?: string;
+}
+
+export interface Artifact {
+  _id: string;
+  user?: {
+    _id: string;
+    username?: string;
+    userImage?: string;
+  };
+  title: string;
+  type: string;
+  parent?: {
+    _id: string;
+    title: string;
+    type: string;
+  };
+  agents?: Array<{
+    _id: string;
+    username?: string;
+    name?: string;
+    userImage?: string;
+  }>;
+  public: boolean;
+  description?: string;
+  session?: string;
+  creations: ArtifactCreation[];
+  createdAt: string;
+  updatedAt: string;
+}
+
+export interface ArtifactsResponse {
+  docs: Artifact[];
+  total: number;
+  limit: number;
+  pages: number;
+  page: number;
+  hasPrevPage: boolean;
+  hasNextPage: boolean;
+  prevPage?: number;
+  nextPage?: number;
+}
+
+export async function listArtifacts(filters?: {
+  page?: number;
+  limit?: number;
+  userId?: string;
+  type?: string;
+  agentId?: string;
+  sessionId?: string;
+}): Promise<ArtifactsResponse> {
+  const params = new URLSearchParams();
+
+  if (filters?.page) params.set("page", filters.page.toString());
+  if (filters?.limit) params.set("limit", filters.limit.toString());
+  if (filters?.userId) params.set("userId", filters.userId);
+  if (filters?.type) params.set("type", filters.type);
+  if (filters?.agentId) params.set("agentId", filters.agentId);
+  if (filters?.sessionId) params.set("sessionId", filters.sessionId);
+
+  const queryString = params.toString();
+  const endpoint = `/v2/artifacts${queryString ? `?${queryString}` : ""}`;
+
+  return edenFetch<ArtifactsResponse>(endpoint);
+}
+
+export async function getArtifact(artifactId: string): Promise<Artifact | null> {
+  try {
+    const response = await edenFetch<{ artifact: Artifact }>(`/v2/artifacts/${artifactId}`);
+    return response.artifact || null;
+  } catch {
+    return null;
+  }
+}
+
 // Utility: Wait for task completion with polling
 export async function waitForTask(
   taskId: string,
