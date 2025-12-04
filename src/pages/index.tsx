@@ -51,7 +51,7 @@ export default function Home() {
 
               <div className="cta-section">
                 <a
-                  href="https://eden.art/verdelis"
+                  href="https://app.eden.art/chat?agent=verdelis"
                   target="_blank"
                   rel="noopener noreferrer"
                   className="eden-button"
