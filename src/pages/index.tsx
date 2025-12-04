@@ -1,53 +1,16 @@
-import { useState, useEffect } from "react";
 import Layout from "@/components/Layout";
+import { getLatestCreation, Creation } from "@/data/creations";
 
-interface Creation {
-  _id: string;
-  url: string;
-  thumbnail?: string;
-  name?: string;
-  title?: string;
-  logline?: string;
-  description?: string;
-  prompt?: string;
-  createdAt?: string;
-}
-
-function formatDate(date: Date): string {
-  return date.toLocaleDateString("en-US", {
+function formatDate(dateStr: string): string {
+  return new Date(dateStr).toLocaleDateString("en-US", {
     year: "numeric",
     month: "long",
     day: "numeric",
   });
 }
 
-function getDateFromId(id: string): Date {
-  const timestamp = parseInt(id.substring(0, 8), 16) * 1000;
-  return new Date(timestamp);
-}
-
 export default function Home() {
-  const [latestCreation, setLatestCreation] = useState<Creation | null>(null);
-  const [isLoading, setIsLoading] = useState(true);
-
-  useEffect(() => {
-    const fetchLatest = async () => {
-      try {
-        const res = await fetch("/api/collection?limit=1");
-        if (!res.ok) throw new Error("Failed to fetch");
-        const data = await res.json();
-        const creations = data.creations?.docs || data.creations || [];
-        if (creations.length > 0) {
-          setLatestCreation(creations[0]);
-        }
-      } catch (error) {
-        console.error("Failed to fetch latest creation:", error);
-      } finally {
-        setIsLoading(false);
-      }
-    };
-    fetchLatest();
-  }, []);
+  const latestCreation: Creation | undefined = getLatestCreation();
 
   return (
     <Layout>
@@ -64,18 +27,12 @@ export default function Home() {
             </p>
           </header>
 
-          {isLoading ? (
-            <div className="loading-spinner">
-              <div className="spinner" />
-              <p>Loading latest creation...</p>
-            </div>
-          ) : latestCreation ? (
+          {latestCreation ? (
             <>
               <div className="video-container">
                 <div className="video-wrapper">
                   <video
                     src={latestCreation.url}
-                    poster={latestCreation.thumbnail}
                     controls
                     autoPlay
                     loop
@@ -84,18 +41,9 @@ export default function Home() {
                   />
                 </div>
                 <div className="video-meta">
-                  {(latestCreation.name || latestCreation.title) && (
-                    <h2 className="video-title">
-                      {latestCreation.name || latestCreation.title}
-                    </h2>
-                  )}
-                  <p className="video-description">
-                    {latestCreation.logline || latestCreation.description || latestCreation.prompt || "A mysterious journey unfolds in the digital realm."}
-                  </p>
+                  <h2 className="video-title">{latestCreation.title}</h2>
                   <time className="video-date">
-                    {latestCreation.createdAt
-                      ? formatDate(new Date(latestCreation.createdAt))
-                      : formatDate(getDateFromId(latestCreation._id))}
+                    {formatDate(latestCreation.date)}
                   </time>
                 </div>
               </div>

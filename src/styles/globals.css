@@ -328,6 +328,156 @@ main {
     line-height: 1.6;
 }
 
+.video-card {
+    cursor: pointer;
+}
+
+.play-overlay {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: rgba(0, 0, 0, 0.3);
+    opacity: 0;
+    transition: var(--transition);
+    pointer-events: none;
+}
+
+.play-overlay svg {
+    color: white;
+    filter: drop-shadow(0 2px 8px rgba(0, 0, 0, 0.4));
+}
+
+.video-card:hover .play-overlay {
+    opacity: 1;
+}
+
+/* ===================================
+   Video Modal
+   =================================== */
+.modal-backdrop {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(0, 0, 0, 0.9);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 1000;
+    padding: var(--spacing-md);
+    animation: fadeIn 0.2s ease;
+}
+
+@keyframes fadeIn {
+    from { opacity: 0; }
+    to { opacity: 1; }
+}
+
+.modal-container {
+    position: relative;
+    width: 100%;
+    max-width: 1000px;
+    max-height: 90vh;
+    display: flex;
+    flex-direction: column;
+    animation: slideUp 0.3s ease;
+}
+
+@keyframes slideUp {
+    from {
+        opacity: 0;
+        transform: translateY(20px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.modal-close {
+    position: absolute;
+    top: -40px;
+    right: 0;
+    background: transparent;
+    border: none;
+    color: rgba(255, 255, 255, 0.7);
+    cursor: pointer;
+    padding: 8px;
+    transition: var(--transition);
+    z-index: 10;
+}
+
+.modal-close:hover {
+    color: white;
+    transform: scale(1.1);
+}
+
+.modal-content {
+    background: rgba(20, 20, 20, 0.95);
+    border-radius: 12px;
+    overflow: hidden;
+    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5);
+}
+
+.modal-video-wrapper {
+    position: relative;
+    padding-bottom: 56.25%;
+    height: 0;
+    background: #000;
+}
+
+.modal-video {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+}
+
+.modal-info {
+    padding: var(--spacing-md) var(--spacing-lg);
+    background: linear-gradient(to bottom, rgba(30, 30, 30, 1), rgba(20, 20, 20, 1));
+}
+
+.modal-title {
+    font-family: var(--font-primary);
+    font-size: 1.75rem;
+    color: rgba(255, 255, 255, 0.95);
+    margin-bottom: var(--spacing-xs);
+    font-weight: 400;
+}
+
+.modal-date {
+    display: block;
+    color: rgba(255, 255, 255, 0.5);
+    font-size: 0.9rem;
+}
+
+@media (max-width: 768px) {
+    .modal-backdrop {
+        padding: var(--spacing-sm);
+    }
+
+    .modal-close {
+        top: -36px;
+        right: -4px;
+    }
+
+    .modal-info {
+        padding: var(--spacing-sm) var(--spacing-md);
+    }
+
+    .modal-title {
+        font-size: 1.35rem;
+    }
+}
+
 /* ===================================
    About Page
    =================================== */

@@ -1,32 +1,82 @@
-import { useState, useEffect, useRef } from "react";
+import { useRef, useState, useEffect, useCallback } from "react";
 import Layout from "@/components/Layout";
+import { getAllCreations, Creation } from "@/data/creations";
 
-interface Creation {
-  _id: string;
-  url: string;
-  thumbnail?: string;
-  name?: string;
-  title?: string;
-  logline?: string;
-  description?: string;
-  prompt?: string;
-  createdAt?: string;
-}
-
-function formatDate(date: Date): string {
-  return date.toLocaleDateString("en-US", {
+function formatDate(dateStr: string): string {
+  return new Date(dateStr).toLocaleDateString("en-US", {
     year: "numeric",
     month: "long",
     day: "numeric",
   });
 }
 
-function getDateFromId(id: string): Date {
-  const timestamp = parseInt(id.substring(0, 8), 16) * 1000;
-  return new Date(timestamp);
+function VideoModal({
+  creation,
+  onClose,
+}: {
+  creation: Creation;
+  onClose: () => void;
+}) {
+  const videoRef = useRef<HTMLVideoElement>(null);
+
+  const handleKeyDown = useCallback(
+    (e: KeyboardEvent) => {
+      if (e.key === "Escape") onClose();
+    },
+    [onClose]
+  );
+
+  useEffect(() => {
+    document.addEventListener("keydown", handleKeyDown);
+    document.body.style.overflow = "hidden";
+    return () => {
+      document.removeEventListener("keydown", handleKeyDown);
+      document.body.style.overflow = "";
+    };
+  }, [handleKeyDown]);
+
+  const handleBackdropClick = (e: React.MouseEvent) => {
+    if (e.target === e.currentTarget) onClose();
+  };
+
+  return (
+    <div className="modal-backdrop" onClick={handleBackdropClick}>
+      <div className="modal-container">
+        <button className="modal-close" onClick={onClose} aria-label="Close">
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+            <path d="M18 6L6 18M6 6l12 12" />
+          </svg>
+        </button>
+
+        <div className="modal-content">
+          <div className="modal-video-wrapper">
+            <video
+              ref={videoRef}
+              src={creation.url}
+              controls
+              autoPlay
+              playsInline
+              className="modal-video"
+            />
+          </div>
+
+          <div className="modal-info">
+            <h2 className="modal-title">{creation.title}</h2>
+            <time className="modal-date">{formatDate(creation.date)}</time>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
 }
 
-function VideoCard({ creation }: { creation: Creation }) {
+function VideoCard({
+  creation,
+  onClick,
+}: {
+  creation: Creation;
+  onClick: () => void;
+}) {
   const videoRef = useRef<HTMLVideoElement>(null);
 
   const handleMouseEnter = () => {
@@ -40,59 +90,39 @@ function VideoCard({ creation }: { creation: Creation }) {
     }
   };
 
-  const creationDate = creation.createdAt
-    ? new Date(creation.createdAt)
-    : getDateFromId(creation._id);
-
   return (
     <article
       className="video-card"
       onMouseEnter={handleMouseEnter}
       onMouseLeave={handleMouseLeave}
+      onClick={onClick}
     >
       <div className="video-thumbnail">
         <video
           ref={videoRef}
           src={creation.url}
-          poster={creation.thumbnail}
+          preload="metadata"
           muted
           loop
           playsInline
         />
+        <div className="play-overlay">
+          <svg width="48" height="48" viewBox="0 0 24 24" fill="currentColor">
+            <path d="M8 5v14l11-7z" />
+          </svg>
+        </div>
       </div>
       <div className="card-content">
-        {(creation.name || creation.title) && (
-          <h3 className="card-title">{creation.name || creation.title}</h3>
-        )}
-        <time className="card-date">{formatDate(creationDate)}</time>
-        <p className="card-description">
-          {creation.logline || creation.description || creation.prompt || "A mysterious journey unfolds in the digital realm."}
-        </p>
+        <h3 className="card-title">{creation.title}</h3>
+        <time className="card-date">{formatDate(creation.date)}</time>
       </div>
     </article>
   );
 }
 
 export default function Archive() {
-  const [creations, setCreations] = useState<Creation[]>([]);
-  const [isLoading, setIsLoading] = useState(true);
-
-  useEffect(() => {
-    const fetchCreations = async () => {
-      try {
-        const res = await fetch("/api/collection");
-        if (!res.ok) throw new Error("Failed to fetch");
-        const data = await res.json();
-        const items = data.creations?.docs || data.creations || [];
-        setCreations(items);
-      } catch (error) {
-        console.error("Failed to fetch creations:", error);
-      } finally {
-        setIsLoading(false);
-      }
-    };
-    fetchCreations();
-  }, []);
+  const creations = getAllCreations();
+  const [selectedCreation, setSelectedCreation] = useState<Creation | null>(null);
 
   return (
     <Layout>
@@ -103,15 +133,14 @@ export default function Archive() {
             <p className="subtitle">My past letters to humanity</p>
           </header>
 
-          {isLoading ? (
-            <div className="loading-spinner">
-              <div className="spinner" />
-              <p>Loading archives...</p>
-            </div>
-          ) : creations.length > 0 ? (
+          {creations.length > 0 ? (
             <div className="video-grid">
               {creations.map((creation) => (
-                <VideoCard key={creation._id} creation={creation} />
+                <VideoCard
+                  key={creation.id}
+                  creation={creation}
+                  onClick={() => setSelectedCreation(creation)}
+                />
               ))}
             </div>
           ) : (
@@ -121,6 +150,13 @@ export default function Archive() {
           )}
         </div>
       </main>
+
+      {selectedCreation && (
+        <VideoModal
+          creation={selectedCreation}
+          onClose={() => setSelectedCreation(null)}
+        />
+      )}
     </Layout>
   );
 }
