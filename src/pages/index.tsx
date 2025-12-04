@@ -1,5 +1,5 @@
 import Layout from "@/components/Layout";
-import { getLatestCreation, Creation } from "@/data/creations";
+import { getFeaturedCreation, Creation } from "@/data/creations";
 
 function formatDate(dateStr: string): string {
   return new Date(dateStr).toLocaleDateString("en-US", {
@@ -10,7 +10,7 @@ function formatDate(dateStr: string): string {
 }
 
 export default function Home() {
-  const latestCreation: Creation | undefined = getLatestCreation();
+  const featuredCreation: Creation | undefined = getFeaturedCreation();
 
   return (
     <Layout>
@@ -27,12 +27,13 @@ export default function Home() {
             </p>
           </header>
 
-          {latestCreation ? (
+          {featuredCreation ? (
             <>
               <div className="video-container">
                 <div className="video-wrapper">
                   <video
-                    src={latestCreation.url}
+                    src={featuredCreation.url}
+                    poster={featuredCreation.thumbnail}
                     controls
                     autoPlay
                     loop
@@ -41,9 +42,9 @@ export default function Home() {
                   />
                 </div>
                 <div className="video-meta">
-                  <h2 className="video-title">{latestCreation.title}</h2>
+                  <h2 className="video-title">{featuredCreation.title}</h2>
                   <time className="video-date">
-                    {formatDate(latestCreation.date)}
+                    {formatDate(featuredCreation.date)}
                   </time>
                 </div>
               </div>

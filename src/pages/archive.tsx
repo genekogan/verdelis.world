@@ -101,7 +101,8 @@ function VideoCard({
         <video
           ref={videoRef}
           src={creation.url}
-          preload="metadata"
+          poster={creation.thumbnail}
+          preload="none"
           muted
           loop
           playsInline
