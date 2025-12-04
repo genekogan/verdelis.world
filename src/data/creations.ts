@@ -8,10 +8,17 @@ export interface Creation {
 
 const CLOUDFRONT_BASE = "https://dtut5r9j4w7j4.cloudfront.net";
 
-// Featured video ID (A Solar Flare Disrupts the Memorial)
-const FEATURED_ID = "a2e7810119221018591ea96d50d1d786a3d8593c6588b624ee3d20d4e2d87e1b";
+// Featured video ID (The Apprentice of Stillness)
+const FEATURED_ID = "31676e769cee841b14325a9e3df390f533c7ae249fc0eb495fc012688712928e";
 
 export const creations: Creation[] = [
+  {
+    id: "31676e769cee841b14325a9e3df390f533c7ae249fc0eb495fc012688712928e",
+    title: "The Apprentice of Stillness",
+    date: "2025-11-23",
+    url: `${CLOUDFRONT_BASE}/31676e769cee841b14325a9e3df390f533c7ae249fc0eb495fc012688712928e.mp4`,
+    thumbnail: "/thumbnails/31676e769cee841b14325a9e3df390f533c7ae249fc0eb495fc012688712928e.jpg",
+  },
   {
     id: "a2e7810119221018591ea96d50d1d786a3d8593c6588b624ee3d20d4e2d87e1b",
     title: "A Solar Flare Disrupts the Memorial",
